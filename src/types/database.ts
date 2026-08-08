@@ -1,5 +1,6 @@
 export const ORDER_STATUSES = [
   'pendiente_pago',
+  'pendiente_coordinacion',
   'esperando_validacion',
   'pago_confirmado',
   'completado',
@@ -7,14 +8,15 @@ export const ORDER_STATUSES = [
 ] as const
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
+export type PaymentMethod = 'transferencia' | 'contraentrega'
 
 export interface Order {
   id: string | number
   codigo: string
   nombre: string
   apellido: string
-  dni: string
-  email: string
+  telefono: string | null
+  metodo_pago: PaymentMethod
   total: number
   estado: OrderStatus
   created_at: string

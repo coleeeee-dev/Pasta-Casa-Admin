@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { getOrderDetails, updateOrderStatus } from '../services/orderService'
 import type { Order, OrderDetail, OrderStatus } from '../types/database'
-import { formatCurrency, formatDate } from '../utils/formatters'
+import { formatCurrency, formatDate, formatPaymentMethod } from '../utils/formatters'
+import { getAvailableOrderActions } from '../utils/orderTransitions'
+import { createWhatsAppUrl } from '../utils/whatsapp'
 import { ErrorState, Spinner } from './StateViews'
 import { StatusBadge } from './StatusBadge'
 
@@ -18,19 +20,14 @@ const actionLabels: Partial<Record<OrderStatus, string>> = {
   cancelado: 'Cancelar pedido',
 }
 
-function availableActions(status: OrderStatus): OrderStatus[] {
-  if (status === 'pendiente_pago') return ['esperando_validacion', 'cancelado']
-  if (status === 'esperando_validacion') return ['pago_confirmado', 'cancelado']
-  if (status === 'pago_confirmado') return ['completado', 'cancelado']
-  return []
-}
-
 export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
   const [details, setDetails] = useState<OrderDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
+  const availableActions = getAvailableOrderActions(order)
+  const whatsAppUrl = createWhatsAppUrl(order.telefono, order.nombre, order.codigo)
 
   const loadDetails = async () => {
     setLoading(true)
@@ -95,6 +92,7 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
               <div><dt>Código</dt><dd>{order.codigo}</dd></div>
               <div><dt>Fecha</dt><dd>{formatDate(order.created_at)}</dd></div>
               <div><dt>Estado</dt><dd><StatusBadge status={order.estado} /></dd></div>
+              <div><dt>Método de pago</dt><dd>{formatPaymentMethod(order.metodo_pago)}</dd></div>
               <div><dt>Total</dt><dd className="detail-total">{formatCurrency(Number(order.total))}</dd></div>
             </dl>
           </section>
@@ -102,11 +100,16 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
           <section className="detail-section">
             <h3>Cliente</h3>
             <dl className="detail-grid">
-              <div><dt>Nombre</dt><dd>{order.nombre}</dd></div>
-              <div><dt>Apellido</dt><dd>{order.apellido}</dd></div>
-              <div><dt>DNI</dt><dd>{order.dni}</dd></div>
-              <div><dt>Email</dt><dd className="break-word">{order.email}</dd></div>
+              <div><dt>Nombre y apellido</dt><dd>{order.nombre} {order.apellido}</dd></div>
+              <div><dt>Número de celular</dt><dd>{order.telefono?.trim() || 'Sin teléfono registrado'}</dd></div>
             </dl>
+            <div className="client-contact">
+              {whatsAppUrl ? (
+                <a className="button whatsapp-button" href={whatsAppUrl} target="_blank" rel="noreferrer">Contactar por WhatsApp</a>
+              ) : (
+                <button className="button whatsapp-button-disabled" disabled>Contactar por WhatsApp</button>
+              )}
+            </div>
           </section>
 
           <section className="detail-section">
@@ -126,9 +129,9 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
           </section>
         </div>
 
-        {availableActions(order.estado).length > 0 && (
+        {availableActions.length > 0 && (
           <footer className="drawer-actions">
-            {availableActions(order.estado).map((status) => (
+            {availableActions.map((status: OrderStatus) => (
               <button key={status} disabled={saving} className={`button ${status === 'cancelado' ? 'button-danger' : 'button-primary'}`} onClick={() => void changeStatus(status)}>
                 {saving ? 'Guardando…' : actionLabels[status]}
               </button>

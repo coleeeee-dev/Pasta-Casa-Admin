@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import type { Order, OrderDetail, OrderStatus } from '../types/database'
 
-const ORDER_COLUMNS = 'id,codigo,nombre,apellido,dni,email,total,estado,created_at,updated_at'
+const ORDER_COLUMNS = 'id,codigo,nombre,apellido,telefono,metodo_pago,total,estado,created_at,updated_at'
 
 export async function getOrders(status?: OrderStatus): Promise<Order[]> {
   let query = supabase.from('pedidos').select(ORDER_COLUMNS).order('created_at', { ascending: false })

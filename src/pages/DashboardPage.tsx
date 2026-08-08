@@ -8,7 +8,7 @@ import type { Order, OrderStatus } from '../types/database'
 import { calculateDashboardMetrics } from '../utils/dashboard'
 import { formatCurrency, formatDate, formatOrderStatus } from '../utils/formatters'
 
-const metricStatuses: OrderStatus[] = ['pendiente_pago', 'esperando_validacion', 'pago_confirmado', 'completado', 'cancelado']
+const metricStatuses: OrderStatus[] = ['pendiente_pago', 'pendiente_coordinacion', 'esperando_validacion', 'pago_confirmado', 'completado', 'cancelado']
 
 export function DashboardPage() {
   const { data: orders, setData: setOrders, loading, error, reload } = useAsyncData(getOrders, [])

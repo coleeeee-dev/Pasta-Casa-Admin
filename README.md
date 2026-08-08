@@ -1,6 +1,6 @@
 # Pasta Casa Admin
 
-Panel administrativo independiente de la tienda pública de Pasta Casa. Permite a administradores ver métricas, consultar pedidos y sus productos, avanzar estados y editar únicamente precio, stock y disponibilidad del catálogo.
+Panel administrativo independiente de la tienda pública de Pasta Casa. Permite a administradores ver métricas, consultar pedidos y sus productos, coordinar transferencias o entregas, contactar al cliente por WhatsApp, avanzar estados y editar únicamente precio, stock y disponibilidad del catálogo.
 
 ## Arquitectura y seguridad
 
@@ -9,7 +9,7 @@ Panel administrativo independiente de la tienda pública de Pasta Casa. Permite 
 - `AuthContext` recupera la sesión con `getSession()`, escucha cambios con `onAuthStateChange()` y valida cada sesión con `rpc('es_admin')`.
 - `ProtectedRoute` no monta el layout ni sus páginas hasta tener sesión y confirmación de administrador.
 - Los servicios consultan `productos`, `pedidos` y `detalle_pedido` con la sesión del usuario. La autorización real depende de las políticas RLS existentes en Supabase; React solo aporta control de navegación y experiencia de usuario.
-- No se guarda información administrativa, pedidos, DNI ni contraseñas en almacenamiento propio. Solo se utiliza la persistencia de sesión administrada por Supabase Auth.
+- No se guarda información administrativa, pedidos, teléfonos ni contraseñas en almacenamiento propio. Solo se utiliza la persistencia de sesión administrada por Supabase Auth.
 
 La Publishable Key (aquí conservada bajo el nombre compatible `VITE_SUPABASE_ANON_KEY`) puede incluirse en el frontend: identifica al proyecto, pero no reemplaza Auth ni RLS. Una Secret Key, `service_role` o cualquier clave `sb_secret_…` jamás debe usarse en este panel.
 
@@ -78,4 +78,4 @@ supabase/
 
 ## Alcance de esta versión
 
-No crea ni elimina productos, no edita datos históricos del pedido y no modifica código, nombre o descripción de productos. El único cambio permitido en pedidos es `estado` (más `updated_at`); en productos son `precio`, `stock_docenas`, `activo` (más `updated_at`). Supabase puede rechazar cualquier operación adicional mediante sus permisos y RLS.
+No crea ni elimina productos, no edita datos del cliente ni datos históricos del pedido y no modifica código, nombre o descripción de productos. El único cambio permitido en pedidos es `estado` (más `updated_at`); en productos son `precio`, `stock_docenas`, `activo` (más `updated_at`). Las transferencias conservan el flujo de validación de pago; las contraentregas pendientes de coordinación pueden completarse o cancelarse. Supabase puede rechazar cualquier operación adicional mediante sus permisos y RLS.

@@ -8,7 +8,7 @@ export interface ProductChanges {
 }
 
 export function validateProductChanges(changes: ProductChanges): string | null {
-  if (!Number.isFinite(changes.precio) || changes.precio < 0) return 'El precio debe ser mayor o igual a 0'
+  if (!Number.isFinite(changes.precio) || changes.precio <= 0) return 'El precio debe ser un número mayor que 0'
   if (!Number.isInteger(changes.stock_docenas) || changes.stock_docenas < 0) {
     return 'El stock debe ser un número entero mayor o igual a 0'
   }

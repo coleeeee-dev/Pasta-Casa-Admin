@@ -202,6 +202,36 @@ td strong { color: var(--ink); }
 .field-success { color: #296347; background: #e8f5ed; }
 .product-editor-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 17px 24px; margin: 3px -24px 0; background: white; border-top: 1px solid var(--border); }
 
+/* Configuration */
+.public-config-banner { background: #f2eee4; border-color: #e5dac3; }
+.public-config-banner span { color: var(--green-950); background: #e7bd6b; }
+.config-form { display: grid; gap: 18px; }
+.config-form-error { margin: 0; }
+.config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.config-card { display: grid; align-content: start; gap: 20px; padding: 22px; background: white; border: 1px solid var(--border); border-radius: 13px; box-shadow: 0 10px 30px rgba(24,46,38,.045); }
+.config-card-wide { grid-column: 1 / -1; }
+.config-card-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 17px; border-bottom: 1px solid #edf0ee; }
+.config-card-heading h3 { margin: 0 0 3px; font-size: 17px; }
+.config-card-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+.config-card-icon { display: grid; width: 34px; height: 34px; place-items: center; flex: 0 0 auto; color: #315b4c; background: #e7efeb; border-radius: 9px; font-size: 11px; font-weight: 900; }
+.config-field { display: grid; gap: 8px; color: #33423d; font-size: 13px; font-weight: 750; }
+.config-field input { width: 100%; min-height: 47px; padding: 11px 13px; color: var(--ink); background: #fbfcfb; border: 1px solid #cfd8d3; border-radius: 8px; outline: none; }
+.config-field input:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(40,99,79,.12); }
+.config-field input:disabled { color: #63706b; background: #f0f3f1; }
+.config-fields-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.config-field-wide { grid-column: 1 / -1; }
+.config-field-error { color: #9a3934; font-size: 11px; font-weight: 650; }
+.config-help { color: var(--muted); font-size: 11px; font-weight: 500; line-height: 1.55; }
+.config-hours-field { max-width: 610px; }
+.config-hours-input { display: flex; align-items: center; gap: 9px; }
+.config-hours-input input { width: 120px; }
+.config-hours-input > span { color: #65736d; font-size: 12px; font-weight: 700; }
+.config-actions { position: sticky; bottom: 14px; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 18px; background: rgba(255,255,255,.96); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 35px rgba(24,46,38,.12); backdrop-filter: blur(10px); }
+.config-actions span, .config-actions strong { display: block; }
+.config-actions span { margin-bottom: 3px; color: #7b8782; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.config-actions strong { color: #40504a; font-size: 12px; }
+.config-actions .button { min-width: 165px; }
+
 /* Drawer */
 .drawer-layer { position: fixed; z-index: 80; inset: 0; }
 .drawer-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; background: rgba(8,21,17,.47); border: 0; backdrop-filter: blur(2px); }
@@ -259,6 +289,8 @@ td strong { color: var(--ink); }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
   .metric-card { min-height: 135px; }
   .summary-grid { grid-template-columns: 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+  .config-card-wide { grid-column: auto; }
 }
 
 @media (max-width: 580px) {
@@ -273,6 +305,11 @@ td strong { color: var(--ink); }
   .product-editor-header, .product-editor-form { padding-left: 18px; padding-right: 18px; }
   .product-editor-actions { padding-left: 18px; padding-right: 18px; margin-left: -18px; margin-right: -18px; }
   .product-editor-actions .button { flex: 1; }
+  .config-card { padding: 18px; }
+  .config-fields-grid { grid-template-columns: 1fr; }
+  .config-field-wide { grid-column: auto; }
+  .config-actions { bottom: 8px; align-items: stretch; flex-direction: column; }
+  .config-actions .button { width: 100%; }
   .message-state { align-items: flex-start; }
   .message-state .button { margin-left: 0; }
   .order-drawer { width: 100vw; }

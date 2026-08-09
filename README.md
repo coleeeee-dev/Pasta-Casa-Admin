@@ -1,6 +1,6 @@
 # Pasta Casa Admin
 
-Panel administrativo independiente de la tienda pública de Pasta Casa. Permite a administradores ver métricas, consultar pedidos y sus productos, coordinar transferencias o entregas, contactar al cliente por WhatsApp, avanzar estados y editar únicamente precio, stock y disponibilidad del catálogo.
+Panel administrativo independiente de la tienda pública de Pasta Casa. Permite a administradores ver métricas, consultar pedidos y sus productos, coordinar transferencias o entregas, contactar al cliente por WhatsApp, avanzar estados, editar el catálogo y administrar la configuración pública del negocio.
 
 ## Arquitectura y seguridad
 
@@ -8,7 +8,7 @@ Panel administrativo independiente de la tienda pública de Pasta Casa. Permite 
 - `@supabase/supabase-js` para Auth, RPC y consultas a PostgREST.
 - `AuthContext` recupera la sesión con `getSession()`, escucha cambios con `onAuthStateChange()` y valida cada sesión con `rpc('es_admin')`.
 - `ProtectedRoute` no monta el layout ni sus páginas hasta tener sesión y confirmación de administrador.
-- Los servicios consultan `productos`, `pedidos` y `detalle_pedido` con la sesión del usuario. La autorización real depende de las políticas RLS existentes en Supabase; React solo aporta control de navegación y experiencia de usuario.
+- Los servicios consultan `productos`, `pedidos`, `detalle_pedido` y `configuracion_publica` con la sesión del usuario. La autorización real depende de las políticas RLS existentes en Supabase; React solo aporta control de navegación y experiencia de usuario.
 - No se guarda información administrativa, pedidos, teléfonos ni contraseñas en almacenamiento propio. Solo se utiliza la persistencia de sesión administrada por Supabase Auth.
 
 La Publishable Key (aquí conservada bajo el nombre compatible `VITE_SUPABASE_ANON_KEY`) puede incluirse en el frontend: identifica al proyecto, pero no reemplaza Auth ni RLS. Una Secret Key, `service_role` o cualquier clave `sb_secret_…` jamás debe usarse en este panel.
@@ -68,7 +68,7 @@ src/
   hooks/        carga asíncrona reutilizable
   layouts/      layout responsive del panel
   lib/          cliente Supabase
-  pages/        login, dashboard, pedidos y productos
+  pages/        login, dashboard, pedidos, productos y configuración
   services/     operaciones permitidas contra Supabase
   types/        modelos y estados válidos
   utils/        formato argentino y métricas
@@ -79,3 +79,7 @@ supabase/
 ## Alcance de esta versión
 
 No crea ni elimina productos, no edita datos del cliente ni datos históricos del pedido y no modifica código, nombre o descripción de productos. Todas las transiciones intermedias utilizan `avanzar_estado_pedido_admin`; cancelar y completar utilizan respectivamente `cancelar_pedido_admin` y `completar_pedido_admin`. React nunca actualiza directamente `pedidos.estado`, devuelve o descuenta stock manualmente ni modifica `stock_reservado`. En productos, los únicos campos editables son `precio`, `stock_docenas`, `activo` y `updated_at`. Supabase sigue siendo la autoridad final mediante sus funciones, permisos y RLS.
+
+## Configuración pública
+
+La ruta protegida `/configuracion` permite administrar la fila `id = 1` de `public.configuracion_publica`: nombre del negocio, WhatsApp, CBU, identificación fiscal, titular y plazo máximo de pago por transferencia. Estos valores son información pública destinada a ser consumida posteriormente por la tienda, pero únicamente administradores autenticados pueden modificarlos gracias a RLS. El panel no inserta, elimina ni crea automáticamente la fila de configuración.

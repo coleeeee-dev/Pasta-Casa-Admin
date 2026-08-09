@@ -6,6 +6,7 @@ const links = [
   { to: '/dashboard', label: 'Dashboard', icon: 'D' },
   { to: '/pedidos', label: 'Pedidos', icon: 'P' },
   { to: '/productos', label: 'Productos', icon: 'R' },
+  { to: '/configuracion', label: 'Configuración', icon: 'C' },
 ]
 
 export function AdminLayout() {

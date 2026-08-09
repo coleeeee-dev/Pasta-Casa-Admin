@@ -48,7 +48,7 @@ export function DashboardPage() {
           </section>
         </>
       )}
-      {selectedOrder && <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdated={updateOrder} />}
+      {selectedOrder && <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdated={updateOrder} onRefreshOrders={reload} />}
     </div>
   )
 }

@@ -36,7 +36,7 @@ export function OrdersPage() {
             <tbody>{orders.map((order) => <tr key={order.id}><td><strong>{order.codigo}</strong></td><td>{formatDate(order.created_at)}</td><td>{order.nombre} {order.apellido}</td><td>{formatPaymentMethod(order.metodo_pago)}</td><td>{formatCurrency(Number(order.total))}</td><td><StatusBadge status={order.estado} /></td><td className="actions-cell"><button className="button button-secondary button-small" onClick={() => setSelectedOrder(order)}>Ver detalle</button></td></tr>)}</tbody></table></div>
         )}
       </section>
-      {selectedOrder && <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdated={updateOrder} />}
+      {selectedOrder && <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdated={updateOrder} onRefreshOrders={reload} />}
     </div>
   )
 }

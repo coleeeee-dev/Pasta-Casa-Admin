@@ -1,7 +1,13 @@
 import { supabase } from '../lib/supabase'
 import type { Order, OrderDetail, OrderStatus } from '../types/database'
 
-const ORDER_COLUMNS = 'id,codigo,nombre,apellido,telefono,metodo_pago,total,estado,created_at,updated_at'
+const ORDER_COLUMNS = 'id,codigo,nombre,apellido,telefono,metodo_pago,total,estado,stock_reservado,created_at,updated_at'
+
+async function getOrderById(orderId: Order['id']): Promise<Order> {
+  const { data, error } = await supabase.from('pedidos').select(ORDER_COLUMNS).eq('id', orderId).single()
+  if (error) throw new Error('El pedido se actualizó, pero no se pudo recuperar su estado actual')
+  return data as Order
+}
 
 export async function getOrders(status?: OrderStatus): Promise<Order[]> {
   let query = supabase.from('pedidos').select(ORDER_COLUMNS).order('created_at', { ascending: false })
@@ -29,6 +35,10 @@ export const buildOrderStatusUpdate = (status: OrderStatus) => ({
 })
 
 export async function updateOrderStatus(orderId: Order['id'], status: OrderStatus): Promise<Order> {
+  if (status === 'cancelado' || status === 'completado') {
+    throw new Error('Los estados terminales deben gestionarse mediante su operación de inventario')
+  }
+
   const { data, error } = await supabase
     .from('pedidos')
     .update(buildOrderStatusUpdate(status))
@@ -38,4 +48,16 @@ export async function updateOrderStatus(orderId: Order['id'], status: OrderStatu
 
   if (error) throw new Error('Supabase rechazó el cambio de estado')
   return data as Order
+}
+
+export async function cancelOrder(orderId: Order['id']): Promise<Order> {
+  const { error } = await supabase.rpc('cancelar_pedido_admin', { p_pedido_id: orderId })
+  if (error) throw new Error('Supabase rechazó la cancelación del pedido')
+  return getOrderById(orderId)
+}
+
+export async function completeOrder(orderId: Order['id']): Promise<Order> {
+  const { error } = await supabase.rpc('completar_pedido_admin', { p_pedido_id: orderId })
+  if (error) throw new Error('Supabase rechazó la finalización del pedido')
+  return getOrderById(orderId)
 }

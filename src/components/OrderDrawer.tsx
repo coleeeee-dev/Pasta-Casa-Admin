@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getOrderDetails, updateOrderStatus } from '../services/orderService'
+import { cancelOrder, completeOrder, getOrderDetails, updateOrderStatus } from '../services/orderService'
+import { getProducts } from '../services/productService'
 import type { Order, OrderDetail, OrderStatus } from '../types/database'
 import { formatCurrency, formatDate, formatPaymentMethod } from '../utils/formatters'
-import { getAvailableOrderActions } from '../utils/orderTransitions'
+import { getAvailableOrderActions, getStockReservationLabel } from '../utils/orderTransitions'
 import { createWhatsAppUrl } from '../utils/whatsapp'
 import { ErrorState, Spinner } from './StateViews'
 import { StatusBadge } from './StatusBadge'
@@ -11,6 +12,7 @@ interface OrderDrawerProps {
   order: Order
   onClose: () => void
   onUpdated: (order: Order) => void
+  onRefreshOrders: () => Promise<void>
 }
 
 const actionLabels: Partial<Record<OrderStatus, string>> = {
@@ -20,7 +22,7 @@ const actionLabels: Partial<Record<OrderStatus, string>> = {
   cancelado: 'Cancelar pedido',
 }
 
-export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
+export function OrderDrawer({ order, onClose, onUpdated, onRefreshOrders }: OrderDrawerProps) {
   const [details, setDetails] = useState<OrderDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,6 +30,7 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
   const [success, setSuccess] = useState<string | null>(null)
   const availableActions = getAvailableOrderActions(order)
   const whatsAppUrl = createWhatsAppUrl(order.telefono, order.nombre, order.codigo)
+  const reservationLabel = getStockReservationLabel(order)
 
   const loadDetails = async () => {
     setLoading(true)
@@ -63,9 +66,26 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
     setError(null)
     setSuccess(null)
     try {
-      const updated = await updateOrderStatus(order.id, nextStatus)
+      const isTerminalOperation = nextStatus === 'cancelado' || nextStatus === 'completado'
+      const updated = nextStatus === 'cancelado'
+        ? await cancelOrder(order.id)
+        : nextStatus === 'completado'
+          ? await completeOrder(order.id)
+          : await updateOrderStatus(order.id, nextStatus)
+
       onUpdated(updated)
-      setSuccess('El estado del pedido se actualizó correctamente.')
+      setSuccess(nextStatus === 'cancelado'
+        ? 'Pedido cancelado y stock liberado correctamente'
+        : nextStatus === 'completado'
+          ? 'Pedido completado correctamente'
+          : 'El estado del pedido se actualizó correctamente.')
+
+      if (isTerminalOperation) {
+        const refreshResults = await Promise.allSettled([onRefreshOrders(), getProducts()])
+        if (refreshResults.some((result) => result.status === 'rejected')) {
+          setError('El pedido se actualizó, pero no se pudieron refrescar todos los datos. Recargá la página.')
+        }
+      }
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : 'No se pudo actualizar el estado')
     } finally {
@@ -94,6 +114,7 @@ export function OrderDrawer({ order, onClose, onUpdated }: OrderDrawerProps) {
               <div><dt>Estado</dt><dd><StatusBadge status={order.estado} /></dd></div>
               <div><dt>Método de pago</dt><dd>{formatPaymentMethod(order.metodo_pago)}</dd></div>
               <div><dt>Total</dt><dd className="detail-total">{formatCurrency(Number(order.total))}</dd></div>
+              {reservationLabel && <div><dt>Inventario</dt><dd><span className={`reservation-state reservation-${order.stock_reservado ? 'reserved' : order.estado}`}>{reservationLabel}</span></dd></div>}
             </dl>
           </section>
 

@@ -217,6 +217,10 @@ td strong { color: var(--ink); }
 .detail-grid dt { margin-bottom: 5px; color: #85908c; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
 .detail-grid dd { margin: 0; color: #27352f; font-size: 13px; font-weight: 650; }
 .detail-grid .detail-total { color: var(--green-700); font-size: 18px; }
+.reservation-state { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.reservation-reserved { color: #67508c; background: #eee8fa; }
+.reservation-completado { color: #347151; background: #e3f3ea; }
+.reservation-cancelado { color: #27667f; background: #e2f2f8; }
 .detail-products { display: grid; gap: 0; }
 .detail-product { display: flex; justify-content: space-between; gap: 20px; padding: 13px 0; border-bottom: 1px solid #edf0ee; }
 .detail-product:last-child { border-bottom: 0; }

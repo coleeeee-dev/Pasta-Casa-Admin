@@ -4,6 +4,7 @@ import { calculateDashboardMetrics } from './dashboard'
 const order = (estado: Order['estado'], total: number): Order => ({
   id: `${estado}-${total}`,
   codigo: 'TEST', nombre: 'Cliente', apellido: 'Prueba', telefono: null, metodo_pago: 'transferencia', total, estado,
+  stock_reservado: estado !== 'completado' && estado !== 'cancelado',
   created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z',
 })
 

@@ -19,6 +19,7 @@ export interface Order {
   metodo_pago: PaymentMethod
   total: number
   estado: OrderStatus
+  stock_reservado: boolean
   created_at: string
   updated_at: string
 }

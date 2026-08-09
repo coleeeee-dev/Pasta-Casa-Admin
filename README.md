@@ -78,4 +78,4 @@ supabase/
 
 ## Alcance de esta versión
 
-No crea ni elimina productos, no edita datos del cliente ni datos históricos del pedido y no modifica código, nombre o descripción de productos. El único cambio permitido en pedidos es `estado` (más `updated_at`); en productos son `precio`, `stock_docenas`, `activo` (más `updated_at`). Las transferencias conservan el flujo de validación de pago; las contraentregas pendientes de coordinación pueden completarse o cancelarse. Supabase puede rechazar cualquier operación adicional mediante sus permisos y RLS.
+No crea ni elimina productos, no edita datos del cliente ni datos históricos del pedido y no modifica código, nombre o descripción de productos. Los estados intermedios actualizan únicamente `estado` y `updated_at`. Cancelar y completar utilizan respectivamente las RPC `cancelar_pedido_admin` y `completar_pedido_admin`, por lo que React nunca devuelve ni descuenta stock manualmente ni modifica `stock_reservado`. En productos, los únicos campos editables son `precio`, `stock_docenas`, `activo` y `updated_at`. Supabase sigue siendo la autoridad final mediante sus funciones, permisos y RLS.

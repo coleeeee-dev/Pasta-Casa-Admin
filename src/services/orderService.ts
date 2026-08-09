@@ -29,25 +29,17 @@ export async function getOrderDetails(orderId: Order['id']): Promise<OrderDetail
   return (data ?? []) as OrderDetail[]
 }
 
-export const buildOrderStatusUpdate = (status: OrderStatus) => ({
-  estado: status,
-  updated_at: new Date().toISOString(),
-})
-
-export async function updateOrderStatus(orderId: Order['id'], status: OrderStatus): Promise<Order> {
+export async function advanceOrderStatus(orderId: Order['id'], status: OrderStatus): Promise<Order> {
   if (status === 'cancelado' || status === 'completado') {
     throw new Error('Los estados terminales deben gestionarse mediante su operación de inventario')
   }
 
-  const { data, error } = await supabase
-    .from('pedidos')
-    .update(buildOrderStatusUpdate(status))
-    .eq('id', orderId)
-    .select(ORDER_COLUMNS)
-    .single()
-
-  if (error) throw new Error('Supabase rechazó el cambio de estado')
-  return data as Order
+  const { error } = await supabase.rpc('avanzar_estado_pedido_admin', {
+    p_pedido_id: orderId,
+    p_nuevo_estado: status,
+  })
+  if (error) throw new Error('Supabase rechazó la transición de estado')
+  return getOrderById(orderId)
 }
 
 export async function cancelOrder(orderId: Order['id']): Promise<Order> {

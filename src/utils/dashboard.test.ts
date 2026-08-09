@@ -12,12 +12,13 @@ describe('calculateDashboardMetrics', () => {
   it('calcula cantidades y suma solo los pedidos completados', () => {
     const metrics = calculateDashboardMetrics([
       order('pendiente_pago', 100), order('pendiente_coordinacion', 300), order('completado', 500),
-      order('completado', 250), order('pago_confirmado', 400), order('cancelado', 900),
+      order('completado', 250), order('pago_confirmado', 400), order('pedido_confirmado', 350), order('cancelado', 900),
     ])
-    expect(metrics.total).toBe(6)
+    expect(metrics.total).toBe(7)
     expect(metrics.byStatus.completado).toBe(2)
     expect(metrics.byStatus.pendiente_pago).toBe(1)
     expect(metrics.byStatus.pendiente_coordinacion).toBe(1)
+    expect(metrics.byStatus.pedido_confirmado).toBe(1)
     expect(metrics.completedAmount).toBe(750)
   })
 })

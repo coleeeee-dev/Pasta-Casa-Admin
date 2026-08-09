@@ -3,6 +3,7 @@ export const ORDER_STATUSES = [
   'pendiente_coordinacion',
   'esperando_validacion',
   'pago_confirmado',
+  'pedido_confirmado',
   'completado',
   'cancelado',
 ] as const

@@ -3,7 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 const orderMocks = vi.hoisted(() => ({
   getOrders: vi.fn(),
   getOrderDetails: vi.fn(),
-  updateOrderStatus: vi.fn(),
+  advanceOrderStatus: vi.fn(),
+  cancelOrder: vi.fn(),
+  completeOrder: vi.fn(),
 }))
 
 vi.mock('../services/orderService', () => orderMocks)
@@ -18,5 +20,8 @@ describe('OrdersPage', () => {
     await waitFor(() => expect(orderMocks.getOrders).toHaveBeenCalledWith(undefined))
     fireEvent.click(screen.getByRole('button', { name: 'Pendiente de coordinación' }))
     await waitFor(() => expect(orderMocks.getOrders).toHaveBeenCalledWith('pendiente_coordinacion'))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pedido confirmado' }))
+    await waitFor(() => expect(orderMocks.getOrders).toHaveBeenCalledWith('pedido_confirmado'))
   })
 })

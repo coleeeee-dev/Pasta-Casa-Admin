@@ -3,7 +3,7 @@ import type { Order } from '../types/database'
 
 const orderMocks = vi.hoisted(() => ({
   getOrderDetails: vi.fn(),
-  updateOrderStatus: vi.fn(),
+  advanceOrderStatus: vi.fn(),
   cancelOrder: vi.fn(),
   completeOrder: vi.fn(),
 }))
@@ -79,7 +79,7 @@ describe('OrderDrawer', () => {
 
     expect(await screen.findByText('Pedido cancelado y stock liberado correctamente')).toBeInTheDocument()
     expect(orderMocks.cancelOrder).toHaveBeenCalledWith(baseOrder.id)
-    expect(orderMocks.updateOrderStatus).not.toHaveBeenCalled()
+    expect(orderMocks.advanceOrderStatus).not.toHaveBeenCalled()
     expect(onUpdated).toHaveBeenCalledWith(cancelledOrder)
     expect(onRefreshOrders).toHaveBeenCalledOnce()
     expect(productMocks.getProducts).toHaveBeenCalledOnce()
@@ -87,16 +87,17 @@ describe('OrderDrawer', () => {
   })
 
   it('completar refresca pedidos y productos sin usar update directo', async () => {
-    const completedOrder: Order = { ...baseOrder, estado: 'completado', stock_reservado: false }
+    const confirmedOrder: Order = { ...baseOrder, estado: 'pedido_confirmado' }
+    const completedOrder: Order = { ...confirmedOrder, estado: 'completado', stock_reservado: false }
     orderMocks.completeOrder.mockResolvedValue(completedOrder)
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
-    const { onUpdated, onRefreshOrders } = renderDrawer()
+    const { onUpdated, onRefreshOrders } = renderDrawer(confirmedOrder)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Marcar como completado' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Completar pedido' }))
 
     expect(await screen.findByText('Pedido completado correctamente')).toBeInTheDocument()
     expect(orderMocks.completeOrder).toHaveBeenCalledWith(baseOrder.id)
-    expect(orderMocks.updateOrderStatus).not.toHaveBeenCalled()
+    expect(orderMocks.advanceOrderStatus).not.toHaveBeenCalled()
     expect(onUpdated).toHaveBeenCalledWith(completedOrder)
     expect(onRefreshOrders).toHaveBeenCalledOnce()
     expect(productMocks.getProducts).toHaveBeenCalledOnce()
@@ -104,28 +105,27 @@ describe('OrderDrawer', () => {
   })
 
   it('un error RPC conserva el estado anterior y no simula éxito', async () => {
-    orderMocks.cancelOrder.mockRejectedValue(new Error('Supabase rechazó la cancelación del pedido'))
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    orderMocks.advanceOrderStatus.mockRejectedValue(new Error('Supabase rechazó la transición de estado'))
     const { onUpdated, onRefreshOrders } = renderDrawer()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cancelar pedido' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar coordinación' }))
 
-    expect(await screen.findByText('Supabase rechazó la cancelación del pedido')).toBeInTheDocument()
-    expect(screen.queryByText('Pedido cancelado y stock liberado correctamente')).not.toBeInTheDocument()
+    expect(await screen.findByText('Supabase rechazó la transición de estado')).toBeInTheDocument()
+    expect(screen.queryByText('El estado del pedido se actualizó correctamente.')).not.toBeInTheDocument()
+    expect(screen.getByText('Pendiente de coordinación')).toBeInTheDocument()
     expect(onUpdated).not.toHaveBeenCalled()
-    expect(onRefreshOrders).not.toHaveBeenCalled()
+    expect(onRefreshOrders).toHaveBeenCalledOnce()
     expect(productMocks.getProducts).not.toHaveBeenCalled()
-    confirmSpy.mockRestore()
   })
 
-  it('los estados intermedios continúan usando update normal', async () => {
+  it('los estados intermedios utilizan avanzar_estado_pedido_admin', async () => {
     const transferOrder: Order = { ...baseOrder, metodo_pago: 'transferencia', estado: 'pendiente_pago' }
     const updatedOrder: Order = { ...transferOrder, estado: 'esperando_validacion' }
-    orderMocks.updateOrderStatus.mockResolvedValue(updatedOrder)
+    orderMocks.advanceOrderStatus.mockResolvedValue(updatedOrder)
     const { onUpdated, onRefreshOrders } = renderDrawer(transferOrder)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Marcar esperando validación' }))
-    await waitFor(() => expect(orderMocks.updateOrderStatus).toHaveBeenCalledWith(transferOrder.id, 'esperando_validacion'))
+    fireEvent.click(screen.getByRole('button', { name: 'Comprobante recibido' }))
+    await waitFor(() => expect(orderMocks.advanceOrderStatus).toHaveBeenCalledWith(transferOrder.id, 'esperando_validacion'))
     expect(onUpdated).toHaveBeenCalledWith(updatedOrder)
     expect(orderMocks.cancelOrder).not.toHaveBeenCalled()
     expect(orderMocks.completeOrder).not.toHaveBeenCalled()
@@ -136,13 +136,13 @@ describe('OrderDrawer', () => {
   it('pedidos cancelados o completados no ofrecen acciones terminales', async () => {
     const cancelledView = renderDrawer({ ...baseOrder, estado: 'cancelado', stock_reservado: false })
     expect(screen.queryByRole('button', { name: 'Cancelar pedido' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Marcar como completado' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Completar pedido' })).not.toBeInTheDocument()
     await screen.findByText('Este pedido no tiene productos registrados.')
     cancelledView.unmount()
 
     renderDrawer({ ...baseOrder, estado: 'completado', stock_reservado: false })
     expect(screen.queryByRole('button', { name: 'Cancelar pedido' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Marcar como completado' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Completar pedido' })).not.toBeInTheDocument()
     await screen.findByText('Este pedido no tiene productos registrados.')
   })
 })

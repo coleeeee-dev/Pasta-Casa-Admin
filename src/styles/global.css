@@ -99,7 +99,7 @@ input:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(40, 99,
 .page-heading h2 { margin: 0 0 7px; font-family: Georgia, serif; font-size: 34px; font-weight: 550; }
 .page-heading p:last-child { margin: 0; color: var(--muted); }
 .count-pill { padding: 7px 11px; color: #3b5a50; background: #e4ece8; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; }
-.metric-grid { display: grid; grid-template-columns: repeat(6, minmax(135px, 1fr)); gap: 13px; }
+.metric-grid { display: grid; grid-template-columns: repeat(7, minmax(115px, 1fr)); gap: 13px; }
 .metric-card { position: relative; min-height: 150px; padding: 20px; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 5px 20px rgba(30,54,46,.035); }
 .metric-card > span:not(.metric-dot) { display: block; min-height: 38px; padding-right: 10px; color: #66736e; font-size: 12px; font-weight: 700; line-height: 1.35; }
 .metric-card strong { display: block; margin-top: 10px; color: #1c2e28; font-family: Georgia, serif; font-size: 37px; font-weight: 500; }
@@ -109,6 +109,7 @@ input:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(40, 99,
 .metric-pendiente_coordinacion .metric-dot { background: #d67a48; }
 .metric-esperando_validacion .metric-dot { background: #8870bd; }
 .metric-pago_confirmado .metric-dot { background: #3785a3; }
+.metric-pedido_confirmado .metric-dot { background: #3f7299; }
 .metric-completado .metric-dot { background: #47916d; }
 .metric-cancelado .metric-dot { background: #bd635d; }
 .summary-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; }
@@ -136,6 +137,7 @@ td strong { color: var(--ink); }
 .status-pendiente_coordinacion { color: #8d4c25; background: #fbe9de; }
 .status-esperando_validacion { color: #66508d; background: #eee8fa; }
 .status-pago_confirmado { color: #27667f; background: #e2f2f8; }
+.status-pedido_confirmado { color: #315b7a; background: #e7f0f7; }
 .status-completado { color: #347151; background: #e3f3ea; }
 .status-cancelado { color: #963f3a; background: #f9e7e5; }
 .filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: thin; }

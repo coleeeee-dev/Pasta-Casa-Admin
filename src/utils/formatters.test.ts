@@ -6,6 +6,7 @@ describe('formatOrderStatus', () => {
     expect(formatOrderStatus('pendiente_coordinacion')).toBe('Pendiente de coordinación')
     expect(formatOrderStatus('esperando_validacion')).toBe('Esperando validación')
     expect(formatOrderStatus('pago_confirmado')).toBe('Pago confirmado')
+    expect(formatOrderStatus('pedido_confirmado')).toBe('Pedido confirmado')
     expect(formatOrderStatus('completado')).toBe('Completado')
     expect(formatOrderStatus('cancelado')).toBe('Cancelado')
   })

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { cancelOrder, completeOrder, getOrderDetails, updateOrderStatus } from '../services/orderService'
+import { advanceOrderStatus, cancelOrder, completeOrder, getOrderDetails } from '../services/orderService'
 import { getProducts } from '../services/productService'
 import type { Order, OrderDetail, OrderStatus } from '../types/database'
 import { formatCurrency, formatDate, formatPaymentMethod } from '../utils/formatters'
@@ -16,9 +16,10 @@ interface OrderDrawerProps {
 }
 
 const actionLabels: Partial<Record<OrderStatus, string>> = {
-  esperando_validacion: 'Marcar esperando validación',
+  esperando_validacion: 'Comprobante recibido',
   pago_confirmado: 'Confirmar pago',
-  completado: 'Marcar como completado',
+  pedido_confirmado: 'Confirmar coordinación',
+  completado: 'Completar pedido',
   cancelado: 'Cancelar pedido',
 }
 
@@ -57,7 +58,7 @@ export function OrderDrawer({ order, onClose, onUpdated, onRefreshOrders }: Orde
   }, [onClose])
 
   const changeStatus = async (nextStatus: OrderStatus) => {
-    if (nextStatus !== 'esperando_validacion') {
+    if (nextStatus === 'pago_confirmado' || nextStatus === 'completado' || nextStatus === 'cancelado') {
       const confirmed = window.confirm(`¿Confirmás la acción “${actionLabels[nextStatus]}”?`)
       if (!confirmed) return
     }
@@ -71,7 +72,7 @@ export function OrderDrawer({ order, onClose, onUpdated, onRefreshOrders }: Orde
         ? await cancelOrder(order.id)
         : nextStatus === 'completado'
           ? await completeOrder(order.id)
-          : await updateOrderStatus(order.id, nextStatus)
+          : await advanceOrderStatus(order.id, nextStatus)
 
       onUpdated(updated)
       setSuccess(nextStatus === 'cancelado'
@@ -88,6 +89,7 @@ export function OrderDrawer({ order, onClose, onUpdated, onRefreshOrders }: Orde
       }
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : 'No se pudo actualizar el estado')
+      await onRefreshOrders()
     } finally {
       setSaving(false)
     }

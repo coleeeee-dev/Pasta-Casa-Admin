@@ -5,6 +5,7 @@ const statusLabels: Record<OrderStatus, string> = {
   pendiente_coordinacion: 'Pendiente de coordinación',
   esperando_validacion: 'Esperando validación',
   pago_confirmado: 'Pago confirmado',
+  pedido_confirmado: 'Pedido confirmado',
   completado: 'Completado',
   cancelado: 'Cancelado',
 }
